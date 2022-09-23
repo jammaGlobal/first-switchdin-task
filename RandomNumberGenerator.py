@@ -1,3 +1,7 @@
+"""
+Generates random number between and including 1 and 100, and publishes it to specific mqtt topic in rabbitmq,
+waits a random interval between and including 1 and 30 seconds and repeats
+"""
 import json
 import paho.mqtt.client as mqtt
 import random

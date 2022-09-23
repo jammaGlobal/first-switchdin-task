@@ -1,3 +1,7 @@
+"""
+Mqtt client subscribes to the same topic that TimeStatisticsGenerator publishes to. On message event collects message
+with averages and the relative minute the calculation was made, prints these results in continuous tabular form in the console
+"""
 import json
 
 import paho.mqtt.client as mqtt

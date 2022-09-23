@@ -1,3 +1,8 @@
+"""
+Sets up mqtt client to subscribe to the same topic that RandomNumberGenerator publishes to. On message event collects message
+with random number inside, at every minute calculates sum of values divided by total of numbers, at every 5 and 30 minutes
+calculates sum of values divided by minutes passed, publishes these calculations to different mqtt topic
+"""
 import json
 
 import paho.mqtt.client as mqtt
