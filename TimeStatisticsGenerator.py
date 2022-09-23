@@ -47,18 +47,18 @@ def calcAndSendAverage(currentMinute, lastFiveMinutes, lastThirtyMinutes):
         print("1 Min: "+str(currentMinute))
         print("5 Min: "+str(lastFiveMinutes))
         print("30 Min: "+str(lastThirtyMinutes))
-        statsToPublish = json.dumps(calculateStatistics(currentMinute.copy(), TimeRange.LASTMINUTE).__dict__)
+        statsToPublish = json.dumps(calculateStatistics(currentMinute.copy(), TimeRange.LASTMINUTE, minuteCounter).__dict__)
         client.publish("random-number/average", statsToPublish, 0)
 
         if(period == TimeRange.LASTFIVEMINUTES):
-            statsToPublish = json.dumps(calculateStatistics(lastFiveMinutes, period).__dict__)
+            statsToPublish = json.dumps(calculateStatistics(lastFiveMinutes, period, minuteCounter).__dict__)
             client.publish("random-number/average", statsToPublish, 0)
             lastFiveMinutes.clear()
 
         if(period == TimeRange.LASTTHIRTYMINUTES):
-            statsToPublish = json.dumps(calculateStatistics(lastFiveMinutes, TimeRange.LASTFIVEMINUTES).__dict__)
+            statsToPublish = json.dumps(calculateStatistics(lastFiveMinutes, TimeRange.LASTFIVEMINUTES, minuteCounter).__dict__)
             client.publish("random-number/average", statsToPublish, 0)
-            statsToPublish = json.dumps(calculateStatistics(lastThirtyMinutes, period).__dict__)
+            statsToPublish = json.dumps(calculateStatistics(lastThirtyMinutes, period, minuteCounter).__dict__)
             client.publish("random-number/average", statsToPublish, 0)
             lastFiveMinutes.clear()
             lastThirtyMinutes.clear()
@@ -66,13 +66,13 @@ def calcAndSendAverage(currentMinute, lastFiveMinutes, lastThirtyMinutes):
         currentMinute.clear()
 
 
-def calculateStatistics(messageList, timeRange):
+def calculateStatistics(messageList, timeRange, minuteCounter):
     if(timeRange == TimeRange.LASTMINUTE):
-        return StatisticsResource(sum(messageList) / len(messageList), timeRange.name)
+        return StatisticsResource(sum(messageList) / len(messageList), timeRange.name, minuteCounter)
 
     if(timeRange == TimeRange.LASTFIVEMINUTES or timeRange == TimeRange.LASTTHIRTYMINUTES):
         return StatisticsResource(sum(sum(x) for x in messageList) / len(messageList),
-                                  (timeRange.name))
+                                  (timeRange.name), minuteCounter)
 
 # mqtt client config
 client = mqtt.Client()

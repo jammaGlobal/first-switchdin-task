@@ -7,39 +7,37 @@ import json
 
 from tabulate import tabulate
 import paho.mqtt.client as mqtt
+from prettytable import PrettyTable
 from Models.TimeRange import TimeRange
+
+table = PrettyTable(['time period          ','random number average'])
+table.align['time period          '] = 'l'
+table.align['random number average'] = 'l'
+table.hrules = 1
 
 def deserialise(T):
     return json.loads(T);
 
 def on_message(client, userdata, msg):
     result = json.loads(msg.payload.decode("utf-8"))
-    print(str(result))
+    printTable(result)
 
-    # statsToTabulate = []
-    #
-    # for stat in periodicStats:
-    #     if(stat["timeRange"] == TimeRange.LASTMINUTE.name):
-    #         stat.pop("timeRange")
-    #         statList = list(stat.values())
-    #         statList.insert(0, "last min")
-    #         statsToTabulate.append(statList)
-    #     elif(stat["timeRange"] == TimeRange.LASTFIVEMINUTES.name):
-    #         stat.pop("timeRange")
-    #         statList = list(stat.values())
-    #         statList.insert(0, "last 5 mins")
-    #         statsToTabulate.append(statList)
-    #     else:
-    #         stat.pop("timeRange")
-    #         statList = list(stat.values())
-    #         statList.insert(0, "last 30 mins")
-    #         statsToTabulate.append(statList)
-    #
-    # tableHeaders = ["time window", "avg random number", "avg msgs per minute"]
-    #
-    # print(tabulate(statsToTabulate, tableHeaders, missingval="-", numalign='left', tablefmt="github"), end='\n')
+def printTable(result):
+    avg = "{:.2f}".format(result["randomNumberAverage"])
 
+    if (result["timeRange"] == TimeRange.LASTMINUTE.name):
+        table.add_row(['minute ' + str(result["minute"]), avg])
+        if (result["minute"] == 1):
+            print(table)
+        else:
+            print("\n".join(table.get_string().splitlines()[-2:]))
 
+    elif (result["timeRange"] == TimeRange.LASTFIVEMINUTES.name):
+        table.add_row(['LAST 5 MIN BLOCK', avg])
+        print("\n".join(table.get_string().splitlines()[-2:]))
+    else:
+        table.add_row(['LAST 30 MIN BLOCK', avg])
+        print("\n".join(table.get_string().splitlines()[-2:]))
 
 client = mqtt.Client()
 client.connect("localhost", 1883, 60)
