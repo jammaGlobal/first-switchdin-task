@@ -1,11 +1,5 @@
-#This will grab all messages currently in the rabbitmq queue with the
-# "random-number/averages" topic and display them
-
-# perhaps when these messages are ack'd they should be sent to a different queue
-# as a historical log
 import json
 
-from tabulate import tabulate
 import paho.mqtt.client as mqtt
 from prettytable import PrettyTable
 from Models.TimeRange import TimeRange
