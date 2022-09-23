@@ -4,9 +4,8 @@ from Models.TimeRange import TimeRange
 
 
 class StatisticsResource:
-    def __init__(self, randomNumberAverage: float, messageRate: float, timeRange: TimeRange):
+    def __init__(self, randomNumberAverage: float, timeRange: TimeRange):
         self.randomNumberAverage = randomNumberAverage
-        self.messageRate = messageRate
         self.timeRange = timeRange
 
     def toJson(self):

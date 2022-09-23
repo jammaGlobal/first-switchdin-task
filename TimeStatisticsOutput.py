@@ -14,29 +14,30 @@ def deserialise(T):
 
 def on_message(client, userdata, msg):
     result = json.loads(msg.payload.decode("utf-8"))
-    periodicStats = list(map(deserialise, result['statistics']))
-    statsToTabulate = []
+    print(str(result))
 
-    for stat in periodicStats:
-        if(stat["timeRange"] == TimeRange.LASTMINUTE.name):
-            stat.pop("timeRange")
-            statList = list(stat.values())
-            statList.insert(0, "last min")
-            statsToTabulate.append(statList)
-        elif(stat["timeRange"] == TimeRange.LASTFIVEMINUTES.name):
-            stat.pop("timeRange")
-            statList = list(stat.values())
-            statList.insert(0, "last 5 mins")
-            statsToTabulate.append(statList)
-        else:
-            stat.pop("timeRange")
-            statList = list(stat.values())
-            statList.insert(0, "last 30 mins")
-            statsToTabulate.append(statList)
-
-    tableHeaders = ["time window", "avg random number", "avg msgs per minute"]
-
-    print(tabulate(statsToTabulate, tableHeaders, missingval="-", numalign='left', tablefmt="github"), end='\n')
+    # statsToTabulate = []
+    #
+    # for stat in periodicStats:
+    #     if(stat["timeRange"] == TimeRange.LASTMINUTE.name):
+    #         stat.pop("timeRange")
+    #         statList = list(stat.values())
+    #         statList.insert(0, "last min")
+    #         statsToTabulate.append(statList)
+    #     elif(stat["timeRange"] == TimeRange.LASTFIVEMINUTES.name):
+    #         stat.pop("timeRange")
+    #         statList = list(stat.values())
+    #         statList.insert(0, "last 5 mins")
+    #         statsToTabulate.append(statList)
+    #     else:
+    #         stat.pop("timeRange")
+    #         statList = list(stat.values())
+    #         statList.insert(0, "last 30 mins")
+    #         statsToTabulate.append(statList)
+    #
+    # tableHeaders = ["time window", "avg random number", "avg msgs per minute"]
+    #
+    # print(tabulate(statsToTabulate, tableHeaders, missingval="-", numalign='left', tablefmt="github"), end='\n')
 
 
 
