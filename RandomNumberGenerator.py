@@ -5,10 +5,8 @@ import time
 import datetime
 from Models.RandomNumber import RandomNumber
 
-# create mqtt client
+# mqtt client config
 client = mqtt.Client()
-
-# connect to mqtt message broker
 client.connect("localhost", 1883, 60)
 
 try:
@@ -16,8 +14,8 @@ try:
         randomNumber = random.randint(1, 100)
         timeInterval = random.randint(1, 30)
 
-        print("generated at: " + str(datetime.datetime.now()) + " || random number: " + str(randomNumber) + " . . . next number in "+str(timeInterval) + " seconds. . .")
         randomNumberObj = RandomNumber(randomNumber, str(datetime.datetime.now()), timeInterval)
+
         # publish random number to client with a quality of service of 0
         client.publish("random-number", json.dumps(randomNumberObj.__dict__), 0)
 

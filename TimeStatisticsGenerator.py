@@ -2,32 +2,24 @@ import json
 
 import paho.mqtt.client as mqtt
 import schedule
-from datetime import datetime
 from Models.StatisticsResource import StatisticsResource
 from Models.TimeRange import TimeRange
-from Models.RandomNumber import RandomNumber
 
-msgHistory = []
-lastMinute = []
 currentMinute = []
 lastFiveMinutes = []
 lastThirtyMinutes = []
+
+# minuteCounter is not "determining" the time at which to calculate averages,
+# only used to determine what "type" of calculation is needed
 minuteCounter = 0
 
-timestamps = []
-
-#callback for message event
+# callback for message event
 def on_message(client, userdata, msg):
-    # print("-------------Message received! Payload: "+ str(msg.payload.decode("utf-8")))
-    msgDateTime = datetime.fromtimestamp(msg.timestamp)
-    timestamps.append(msgDateTime)  # float
-
     result = json.loads(msg.payload.decode("utf-8"))
     currentMinute.append(result['value'])
-    msgHistory.append(RandomNumber(result['value'], result['timeOfGeneration'], result['secondsUntilNextNumberGen']))
 
 # lists are passed by reference
-# This function will calculate and send the average random number value for the last Minute, 5 Minutes AND 30 Minutes
+# This function will calculate and send the average random number value for the last Minute, 5 Minute block AND 30 Minute block
 # (the latter two only when those time ranges have elapsed).
 def calcAndSendAverage(currentMinute, lastFiveMinutes, lastThirtyMinutes):
 
@@ -44,35 +36,28 @@ def calcAndSendAverage(currentMinute, lastFiveMinutes, lastThirtyMinutes):
     if(len(currentMinute) != 0):
         lastFiveMinutes.append(currentMinute.copy())
         lastThirtyMinutes.append(currentMinute.copy())
-        print("1 Min: "+str(currentMinute))
-        print("5 Min: "+str(lastFiveMinutes))
-        print("30 Min: "+str(lastThirtyMinutes))
-        statsToPublish = json.dumps(calculateStatistics(currentMinute.copy(), TimeRange.LASTMINUTE, minuteCounter).__dict__)
-        client.publish("random-number/average", statsToPublish, 0)
+        client.publish("random-number/average", calculateStatisticsToSend(currentMinute.copy(), TimeRange.LASTMINUTE, minuteCounter), 0)
 
         if(period == TimeRange.LASTFIVEMINUTES):
-            statsToPublish = json.dumps(calculateStatistics(lastFiveMinutes, period, minuteCounter).__dict__)
-            client.publish("random-number/average", statsToPublish, 0)
+            client.publish("random-number/average", calculateStatisticsToSend(lastFiveMinutes, period, minuteCounter), 0)
             lastFiveMinutes.clear()
 
         if(period == TimeRange.LASTTHIRTYMINUTES):
-            statsToPublish = json.dumps(calculateStatistics(lastFiveMinutes, TimeRange.LASTFIVEMINUTES, minuteCounter).__dict__)
-            client.publish("random-number/average", statsToPublish, 0)
-            statsToPublish = json.dumps(calculateStatistics(lastThirtyMinutes, period, minuteCounter).__dict__)
-            client.publish("random-number/average", statsToPublish, 0)
+            client.publish("random-number/average", calculateStatisticsToSend(lastFiveMinutes, TimeRange.LASTFIVEMINUTES, minuteCounter), 0)
+            client.publish("random-number/average", calculateStatisticsToSend(lastThirtyMinutes, period, minuteCounter), 0)
             lastFiveMinutes.clear()
             lastThirtyMinutes.clear()
 
         currentMinute.clear()
 
-
-def calculateStatistics(messageList, timeRange, minuteCounter):
+# calculates average for list of random numbers and constructs an object which is then serialised to json
+def calculateStatisticsToSend(messageList, timeRange, minuteCounter):
     if(timeRange == TimeRange.LASTMINUTE):
-        return StatisticsResource(sum(messageList) / len(messageList), timeRange.name, minuteCounter)
+        return json.dumps(StatisticsResource(sum(messageList) / len(messageList), timeRange.name, minuteCounter).__dict__)
 
     if(timeRange == TimeRange.LASTFIVEMINUTES or timeRange == TimeRange.LASTTHIRTYMINUTES):
-        return StatisticsResource(sum(sum(x) for x in messageList) / len(messageList),
-                                  (timeRange.name), minuteCounter)
+        return json.dumps(StatisticsResource(sum(sum(x) for x in messageList) / len(messageList),
+                                  (timeRange.name), minuteCounter).__dict__)
 
 # mqtt client config
 client = mqtt.Client()
@@ -83,6 +68,8 @@ client.subscribe("random-number")
 def listenForMessages():
     client.loop()
 
+# A scheduled job will run every 60 seconds to caculate and send random number average(s)
+# another job runs every second which loops the mqtt client to listen for publish message events
 schedule.every(60).seconds.do(calcAndSendAverage, currentMinute, lastFiveMinutes,
                               lastThirtyMinutes)
 schedule.every().second.do(listenForMessages)
@@ -91,4 +78,6 @@ try:
     while True:
         schedule.run_pending()
 except Exception as e:
-    print("Broker connection severed due to: " + str(e.with_traceback()))
+    print("Broker connection severed due to: " + str(e))
+finally:
+    client.disconnect()
