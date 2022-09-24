@@ -8,6 +8,9 @@ import paho.mqtt.client as mqtt
 from prettytable import PrettyTable
 from Models.TimeRange import TimeRange
 
+print("[ Random Number Averages Output ]")
+print("[ processing .... ]")
+print(" ")
 table = PrettyTable(['time period          ','random number average'])
 table.align['time period          '] = 'l'
 table.align['random number average'] = 'l'
