@@ -1,4 +1,4 @@
-##Random Number Stats
+###Random Number Stats
 Here is the repo for the Python Software Engineer (Embedded, Data Science) skills test. I believe my solution is correct although there are improvements that could be made. 
 
 The schedule python library doesn't feature any way to set priority on jobs and so initially I had a call to calcAndSendAverage every 1 min, every 5 mins, and every 30 mins however the 5min and 30min jobs when run needed to be run in sequence after the 1min job which wasn't guaranteed which the scheduler. If I had more time I would have investigated more into threading or asyncio. 
