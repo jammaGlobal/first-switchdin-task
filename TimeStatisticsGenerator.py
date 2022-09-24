@@ -3,8 +3,8 @@ Sets up mqtt client to subscribe to the same topic that RandomNumberGenerator pu
 with random number inside, at every minute calculates sum of values divided by total of numbers, at every 5 and 30 minutes
 calculates sum of values divided by minutes passed, publishes these calculations to different mqtt topic
 """
+import sys
 import json
-
 import paho.mqtt.client as mqtt
 import schedule
 from Models.StatisticsResource import StatisticsResource
@@ -82,7 +82,9 @@ schedule.every().second.do(listenForMessages)
 try:
     while True:
         schedule.run_pending()
-except Exception as e:
+except (Exception, KeyboardInterrupt) as e:
     print("Broker connection severed due to: " + str(e))
 finally:
     client.disconnect()
+    schedule.clear()
+    sys.exit()

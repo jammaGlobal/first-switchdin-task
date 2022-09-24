@@ -2,8 +2,8 @@
 Mqtt client subscribes to the same topic that TimeStatisticsGenerator publishes to. On message event collects message
 with averages and the relative minute the calculation was made, prints these results in continuous tabular form in the console
 """
+import sys
 import json
-
 import paho.mqtt.client as mqtt
 from prettytable import PrettyTable
 from Models.TimeRange import TimeRange
@@ -49,8 +49,9 @@ client.subscribe("random-number/average")
 try:
     while 1:
         client.loop()
-except Exception as e:
+except (Exception, KeyboardInterrupt) as e:
     print("Broker connection severed due to: " + str(e))
 finally:
     client.disconnect()
+    sys.exit()
 

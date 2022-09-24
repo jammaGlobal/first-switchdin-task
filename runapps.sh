@@ -1,4 +1,4 @@
 #!/bin/bash
-python RandomNumberGenerator.py &
-python TimeStatisticsGenerator.py &
-python TimeStatisticsOutput.py &
+python3 RandomNumberGenerator.py &
+python3 TimeStatisticsGenerator.py &
+python3 TimeStatisticsOutput.py &

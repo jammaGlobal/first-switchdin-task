@@ -2,6 +2,7 @@
 Generates random number between and including 1 and 100, and publishes it to specific mqtt topic in rabbitmq,
 waits a random interval between and including 1 and 30 seconds and repeats
 """
+import sys
 import json
 import paho.mqtt.client as mqtt
 import random
@@ -25,7 +26,8 @@ try:
 
         # delay interval of a random amount between 1 and 30 seconds
         time.sleep(timeInterval)
-except Exception as e:
+except (Exception, KeyboardInterrupt) as e:
     print("Unable to publish due to: " + str(e))
 finally:
     client.disconnect()
+    sys.exit()
