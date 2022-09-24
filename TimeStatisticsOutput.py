@@ -5,6 +5,7 @@ with averages and the relative minute the calculation was made, prints these res
 import sys
 import json
 import paho.mqtt.client as mqtt
+
 from prettytable import PrettyTable
 from Models.TimeRange import TimeRange
 
