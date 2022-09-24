@@ -82,7 +82,9 @@ schedule.every().second.do(listenForMessages)
 try:
     while True:
         schedule.run_pending()
-except (Exception, KeyboardInterrupt) as e:
+except KeyboardInterrupt as e:
+    print("statistics generator exited")
+except Exception as e:
     print("Broker connection severed due to: " + str(e))
 finally:
     client.disconnect()

@@ -49,7 +49,9 @@ client.subscribe("random-number/average")
 try:
     while 1:
         client.loop()
-except (Exception, KeyboardInterrupt) as e:
+except KeyboardInterrupt as e:
+    print("table output exited")
+except Exception as e:
     print("Broker connection severed due to: " + str(e))
 finally:
     client.disconnect()

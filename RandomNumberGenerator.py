@@ -26,8 +26,10 @@ try:
 
         # delay interval of a random amount between 1 and 30 seconds
         time.sleep(timeInterval)
-except (Exception, KeyboardInterrupt) as e:
+except Exception as e:
     print("Unable to publish due to: " + str(e))
+except KeyboardInterrupt as e:
+    print("random number generator exited")
 finally:
     client.disconnect()
     sys.exit()
